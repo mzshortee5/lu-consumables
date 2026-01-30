@@ -1,4 +1,4 @@
-name: Discord notify
+name: GitHub → Discord Embed
 
 on:
   push:
@@ -8,15 +8,38 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: Send message to Discord
+      - name: Send Discord embed
         env:
           WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           REPO: ${{ github.repository }}
           ACTOR: ${{ github.actor }}
-          MSG: ${{ github.event.head_commit.message }}
+          MESSAGE: ${{ github.event.head_commit.message }}
           URL: ${{ github.event.head_commit.url }}
         run: |
-          payload=$(jq -n \
-            --arg content "🚀 **$REPO** updated by **$ACTOR**\n📝 $MSG\n🔗 $URL" \
-            '{content: $content}')
-          curl -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"
+          payload=$(cat <<EOF
+          {
+            "username": "GitHub Bot",
+            "avatar_url": "https://raw.githubusercontent.com/YOURUSERNAME/YOURREPO/main/github-bot-logo.png",
+            "embeds": [
+              {
+                "title": "🚀 Repository Updated",
+                "url": "$URL",
+                "color": 15158332,
+                "description": "**Repo:** $REPO\n**By:** $ACTOR\n\n📝 $MESSAGE",
+                "thumbnail": {
+                  "url": "https://raw.githubusercontent.com/YOURUSERNAME/YOURREPO/main/github-bot-logo.png"
+                },
+                "footer": {
+                  "text": "Lu Scripts • GitHub Automation"
+                },
+                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              }
+            ]
+          }
+          EOF
+          )
+
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "$payload" \
+               "$WEBHOOK"
