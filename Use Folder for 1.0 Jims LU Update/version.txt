@@ -1,0 +1,6 @@
+25.1.30
+-- Updated the fxmanifest to include other options for your server 
+-- Updated the config with some examples to use along with introducing the body effect and screen effect
+-- Updated the screen effects in the shared 
+-- Updated the cheating avenue with duplication and removing items from others pockets within the server (one section includes fini)
+-- Updated the body and screen effects functions
