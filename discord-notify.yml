@@ -1,0 +1,22 @@
+name: Discord notify
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Discord
+        env:
+          WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+          MSG: ${{ github.event.head_commit.message }}
+          URL: ${{ github.event.head_commit.url }}
+        run: |
+          payload=$(jq -n \
+            --arg content "🚀 **$REPO** updated by **$ACTOR**\n📝 $MSG\n🔗 $URL" \
+            '{content: $content}')
+          curl -H "Content-Type: application/json" -d "$payload" "$WEBHOOK"
